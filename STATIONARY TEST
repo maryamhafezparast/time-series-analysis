@@ -1,0 +1,385 @@
+Jupyter Notebooktime series activity 3- stationary test Last Checkpoint: 06/18/2020 (autosaved)
+Python 3 
+
+
+Markdown
+stationary test
+https://machinelearningmastery.com/time-series-data-stationary-python/
+
+we can check stationarity using the following:
+
+1- Plotting Rolling Statistics: We can plot the moving average or moving variance and see if it varies with time. By moving average/variance at any instant ‘t’, we’ll take the average/variance of the last year, i.e. last 12 months. But again this is more of a visual technique.
+
+2- Dickey-Fuller Test: This is one of the statistical tests for checking stationarity. Here the null hypothesis is that the TS is non-stationary. The test results comprise of a Test Statistic and some Critical Values for difference confidence levels. If the ‘Test Statistic’ is less than the ‘Critical Value’, we can reject the null hypothesis and say that the series is stationary.
+
+3- define function for kpss test: KPSS is another test for checking the stationarity of a time series (slightly less popular than the Dickey Fuller test). The null and alternate hypothesis for the KPSS test are opposite that of the ADF test, which often creates confusion.the KPSS test have defined the null hypothesis as the process is trend stationary, to an alternate hypothesis of a unit root series.
+
+#ACTIVITY 1:
+#Using data timeseries and check the stationary
+​
+import pandas as pd
+ 
+timeseries=pd.read_csv('data.csv')
+print (timeseries)
+​
+​
+         P
+0     29.0
+1     52.0
+2     10.0
+3     49.5
+4     78.5
+5     66.5
+6     34.5
+7     87.5
+8      0.0
+9      0.0
+10     0.0
+11     0.0
+12    11.0
+13     0.0
+14   159.5
+15     0.0
+16    81.5
+17    88.0
+18   152.0
+19    42.0
+20    11.0
+21     0.0
+22    35.0
+23     0.0
+24     0.0
+25   141.7
+26   108.5
+27    34.5
+28   115.2
+29    67.0
+..     ...
+366   89.5
+367   14.5
+368    0.0
+369    0.0
+370    0.0
+371    0.0
+372   50.0
+373   33.5
+374  167.5
+375   28.0
+376   35.0
+377   46.5
+378   62.5
+379   55.5
+380    6.0
+381    0.0
+382    0.0
+383    2.5
+384    9.5
+385   60.5
+386  115.5
+387   71.0
+388   43.5
+389   15.0
+390  150.5
+391   19.5
+392    0.0
+393    0.0
+394    0.0
+395    0.0
+
+[396 rows x 1 columns]
+Determing rolling statistics
+​
+rolmean = pd.rolling_mean(timeseries, window=12)
+rolstd = pd.rolling_std(timeseries, window=12)
+print(rolmean,rolstd)
+             P
+0          NaN
+1          NaN
+2          NaN
+3          NaN
+4          NaN
+5          NaN
+6          NaN
+7          NaN
+8          NaN
+9          NaN
+10         NaN
+11   33.958333
+12   32.458333
+13   28.125000
+14   40.583333
+15   36.458333
+16   36.708333
+17   38.500000
+18   48.291667
+19   44.500000
+20   45.416667
+21   45.416667
+22   48.333333
+23   48.333333
+24   47.416667
+25   59.225000
+26   54.975000
+27   57.850000
+28   60.658333
+29   58.908333
+..         ...
+366  33.625000
+367  33.458333
+368  33.458333
+369  32.833333
+370  32.750000
+371  32.750000
+372  36.791667
+373  33.041667
+374  42.500000
+375  42.291667
+376  35.208333
+377  38.708333
+378  36.458333
+379  39.875000
+380  40.375000
+381  40.375000
+382  40.375000
+383  40.583333
+384  37.208333
+385  39.458333
+386  35.125000
+387  38.708333
+388  39.416667
+389  36.791667
+390  44.125000
+391  41.125000
+392  40.625000
+393  40.625000
+394  40.625000
+395  40.416667
+
+[396 rows x 1 columns]              P
+0          NaN
+1          NaN
+2          NaN
+3          NaN
+4          NaN
+5          NaN
+6          NaN
+7          NaN
+8          NaN
+9          NaN
+10         NaN
+11   32.597029
+12   33.253474
+13   33.858076
+14   50.161935
+15   51.382460
+16   51.612392
+17   53.092544
+18   62.320819
+19   61.090469
+20   60.441118
+21   60.441118
+22   58.874417
+23   58.874417
+24   59.589823
+25   63.265805
+26   57.354070
+27   55.170949
+28   57.300824
+29   56.707486
+..         ...
+366  41.781969
+367  41.860406
+368  41.860406
+369  42.336495
+370  42.405778
+371  42.405778
+372  41.457239
+373  39.321783
+374  55.246966
+375  55.301019
+376  49.591723
+377  48.701530
+378  46.725241
+379  46.471949
+380  46.034140
+381  46.034140
+382  46.034140
+383  45.840055
+384  46.568844
+385  47.023427
+386  35.013715
+387  36.391469
+388  36.395450
+389  36.969556
+390  49.228191
+391  49.567734
+392  49.982781
+393  49.982781
+394  49.982781
+395  50.161029
+
+[396 rows x 1 columns]
+C:\Users\PC\AppData\Local\Enthought\Canopy\edm\envs\User\lib\site-packages\ipykernel\__main__.py:2: FutureWarning: pd.rolling_mean is deprecated for DataFrame and will be removed in a future version, replace with 
+	DataFrame.rolling(window=12,center=False).mean()
+  from ipykernel import kernelapp as app
+C:\Users\PC\AppData\Local\Enthought\Canopy\edm\envs\User\lib\site-packages\ipykernel\__main__.py:3: FutureWarning: pd.rolling_std is deprecated for DataFrame and will be removed in a future version, replace with 
+	DataFrame.rolling(window=12,center=False).std()
+  app.launch_new_instance()
+Plot rolling statistics:
+​
+from matplotlib import pyplot as plt
+orig = plt.plot(timeseries, color='blue',label='Original')
+mean = plt.plot(rolmean, color='red', label='Rolling Mean')
+std = plt.plot(rolstd, color='black', label = 'Rolling Std')
+plt.legend(loc='best')
+plt.title('Rolling Mean & Standard Deviation')
+plt.show(block=False)
+
+Perform Dickey-Fuller test:
+import numpy as np
+print('Results of Dickey-Fuller Test:')
+from statsmodels.tsa.stattools import adfuller
+x=(timeseries.values.flatten())
+result = adfuller(x)
+print('ADF Statistic: %f' % result[0])
+print('p-value: %f' % result[1])
+print('Critical Values:')
+for key, value in result[4].items():
+    print('\t%s: %.3f' % (key, value))
+Results of Dickey-Fuller Test:
+ADF Statistic: -4.802731
+p-value: 0.000054
+Critical Values:
+	1%: -3.447
+	10%: -2.571
+	5%: -2.869
+p-value > 0.05: Fail to reject the null hypothesis (H0), the data has a unit root and is non-stationary. p-value <= 0.05: Reject the null hypothesis (H0), the data does not have a unit root and is stationary. If the ‘Test Statistic’ is less than the ‘Critical Value’, we can reject the null hypothesis and say that the series is stationary.
+
+define function for kpss test
+from statsmodels.tsa.stattools import kpss
+kpsstest = kpss(x, regression='c')
+kpss_output = pd.Series(kpsstest[0:3], index=['Test Statistic','p-value','Lags Used'])
+for key,value in kpsstest[3].items():
+    kpss_output['Critical Value (%s)'%key] = value
+print(kpss_output)
+Test Statistic            0.142176
+p-value                   0.100000
+Lags Used                17.000000
+Critical Value (1%)       0.739000
+Critical Value (10%)      0.347000
+Critical Value (2.5%)     0.574000
+Critical Value (5%)       0.463000
+dtype: float64
+C:\Users\PC\AppData\Local\Enthought\Canopy\edm\envs\User\lib\site-packages\statsmodels\tsa\stattools.py:1260: InterpolationWarning: p-value is greater than the indicated p-value
+  warn("p-value is greater than the indicated p-value", InterpolationWarning)
+As test statistic value 0.14 is less than critical values .If the test statistic is less than the critical value, if fail to reject the null hypothesis (series is stationary).
+
+​
+Activity2:
+check the stationary of these data(discharge.csv):
+
+import pandas as pd
+from pandas import Series
+from statsmodels.tsa.stattools import adfuller
+series = pd.read_csv('discharge.csv')
+X=series['#discharge']
+#series = Series.from_csv('discharge.csv', header=0)
+#X = series.values
+#print(X)
+​
+series
+#discharge
+0	7.893226
+1	3.640323
+2	0.717097
+3	0.408387
+4	0.311613
+5	0.181935
+6	0.400000
+7	1.200000
+8	2.085714
+9	2.310000
+10	2.137333
+11	3.262069
+12	6.856774
+13	5.164839
+14	1.315161
+15	0.483871
+16	0.356129
+17	0.255161
+18	0.362000
+19	3.128667
+20	2.151333
+21	2.002000
+22	1.926000
+23	4.010000
+24	2.261935
+25	2.426129
+26	0.269032
+27	0.167419
+28	0.139032
+29	0.122581
+...	...
+330	0.188400
+331	0.633967
+332	1.360367
+333	1.017067
+334	1.464767
+335	1.980333
+336	2.377097
+337	2.315742
+338	0.447516
+339	0.268387
+340	0.231452
+341	0.172290
+342	0.038567
+343	1.859067
+344	1.485333
+345	1.221667
+346	1.405000
+347	2.210690
+348	3.400323
+349	5.229032
+350	0.943258
+351	0.277226
+352	0.165839
+353	0.122968
+354	0.117500
+355	0.098167
+356	0.730667
+357	1.808000
+358	2.135667
+359	1.345759
+360 rows × 1 columns
+
+checking stationary by Dickey-Fuller test
+result = adfuller(X)
+print('ADF Statistic: %f' % result[0])
+print('p-value: %f' % result[1])
+print('Critical Values:')
+for key, value in result[4].items():
+    print('\t%s: %.3f' % (key, value))
+ADF Statistic: -3.261214
+p-value: 0.016704
+Critical Values:
+	1%: -3.449
+	10%: -2.571
+	5%: -2.870
+so this example shows that this time series based on p-value and critical value can be stationary.
+
+checking stationary by Dickey-Fuller test
+from statsmodels.tsa.stattools import kpss
+kpsstest = kpss(X, regression='c')
+kpss_output = pd.Series(kpsstest[0:3], index=['Test Statistic','p-value','Lags Used'])
+for key,value in kpsstest[3].items():
+    kpss_output['Critical Value (%s)'%key] = value
+print(kpss_output)
+Test Statistic            0.354124
+p-value                   0.096930
+Lags Used                17.000000
+Critical Value (1%)       0.739000
+Critical Value (10%)      0.347000
+Critical Value (2.5%)     0.574000
+Critical Value (5%)       0.463000
+dtype: float64
+​
