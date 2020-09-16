@@ -1,0 +1,340 @@
+Jupyter Notebooktime series activity 4- making a time series stationary Last Checkpoint: 06/18/2020 (autosaved)
+Python 3 
+File
+Edit
+View
+Insert
+Cell
+Kernel
+Help
+
+Markdown
+Making a Time Series Stationary
+Now that we are familiar with the concept of stationarity and its different types, we can finally move on to actually making our series stationary. Always keep in mind that in order to use time series forecasting models, it is necessary to convert any non-stationary series to a stationary series first
+
+1. Differencing
+Time series datasets may contain trends and seasonality, which may need to be removed prior to modeling.
+
+Trends can result in a varying mean over time, whereas seasonality can result in a changing variance over time, both which define a time series as being non-stationary. Stationary datasets are those that have a stable mean and variance, and are in turn much easier to model.
+
+import pandas as pd
+from pandas import Series
+from statsmodels.tsa.stattools import adfuller
+from matplotlib import pyplot as plt
+series=pd.read_csv('airpassengers.csv')
+X=series['#Passengers']
+X
+​
+0      112
+1      118
+2      132
+3      129
+4      121
+5      135
+6      148
+7      148
+8      136
+9      119
+10     104
+11     118
+12     115
+13     126
+14     141
+15     135
+16     125
+17     149
+18     170
+19     170
+20     158
+21     133
+22     114
+23     140
+24     145
+25     150
+26     178
+27     163
+28     172
+29     178
+      ... 
+114    491
+115    505
+116    404
+117    359
+118    310
+119    337
+120    360
+121    342
+122    406
+123    396
+124    420
+125    472
+126    548
+127    559
+128    463
+129    407
+130    362
+131    405
+132    417
+133    391
+134    419
+135    461
+136    472
+137    535
+138    622
+139    606
+140    508
+141    461
+142    390
+143    432
+Name: #Passengers, Length: 144, dtype: int64
+stationary test
+result = adfuller(X)
+print('ADF Statistic: %f' % result[0])
+print('p-value: %f' % result[1])
+print('Critical Values:')
+for key, value in result[4].items():
+    print('\t%s: %.3f' % (key, value))
+​
+ADF Statistic: 0.815369
+p-value: 0.991880
+Critical Values:
+	10%: -2.579
+	1%: -3.482
+	5%: -2.884
+The statistic value is greater than critical values so the series is not stationary. to make the series stationary can use Differencing. its better to define a function for differencing and can do differencing with different lags.
+
+difference the dataset
+Differencing is a popular and widely used data transform for making time series data stationary.Differencing is the difference of consecutive terms in the series.Mathematically, differencing can be written as:
+
+yt' = yt – y(t-1) where yt is the value at a time t
+
+# create a differenced series
+def difference(dataset, interval):
+    diff = list()
+    for i in range(interval, len(dataset)):
+        value = dataset[i] - dataset[i - interval]
+        diff.append(value)
+    return diff
+diff = difference(X, 1)
+plt.plot(diff)
+plt.show()
+
+result = adfuller(diff)
+print('ADF Statistic: %f' % result[0])
+print('p-value: %f' % result[1])
+print('Critical Values:')
+for key, value in result[4].items():
+    print('\t%s: %.3f' % (key, value))
+ADF Statistic: -2.829267
+p-value: 0.054213
+Critical Values:
+	10%: -2.579
+	1%: -3.482
+	5%: -2.884
+After 1 lag differencing ADF statistic value is less than 10% critical value. now can try 2lags differencing.
+
+2lags Differencing:
+can do differencing with 2 lags and compare it to previous series.
+
+diff2 = difference(X, 2)
+plt.plot(diff2)
+plt.show()
+
+result = adfuller(diff2)
+print('ADF Statistic: %f' % result[0])
+print('p-value: %f' % result[1])
+print('Critical Values:')
+for key, value in result[4].items():
+    print('\t%s: %.3f' % (key, value))
+ADF Statistic: -2.961695
+p-value: 0.038630
+Critical Values:
+	10%: -2.579
+	1%: -3.482
+	5%: -2.884
+After 2 lags differencing ADF statistic value is less than 10% ,5% critical value so its better stationary.
+
+2.Standardization
+Standardization is a transform for data with a Gaussian distribution.
+
+It subtracts the mean and divides the result by the standard deviation of the data sample. This has the effect of transforming the data to have mean of zero, or centered, with a standard deviation of 1. This resulting distribution is called a standard Gaussian distribution, or a standard normal, hence the name of the transform.
+
+We can perform standardization using the StandardScaler object in Python from the scikit-learn library.
+
+This class allows the transform to be fit on a training dataset by calling fit(), applied to one or more datasets (e.g. train and test) by calling transform() and also provides a function to reverse the transform by calling inverse_transform().
+
+from sklearn.preprocessing import StandardScaler
+from numpy import array
+series=pd.read_csv('airpassengers.csv')
+X=series['#Passengers']
+# define dataset
+data = X
+data = array(data).reshape(len(data), 1)
+​
+transformer = StandardScaler().fit(data)
+transformed = transformer.transform(data)
+transformed
+​
+C:\Users\PC\AppData\Local\Enthought\Canopy\edm\envs\User\lib\site-packages\sklearn\utils\validation.py:475: DataConversionWarning: Data with input dtype int64 was converted to float64 by StandardScaler.
+  warnings.warn(msg, DataConversionWarning)
+array([[-1.40777884],
+       [-1.35759023],
+       [-1.24048348],
+       [-1.26557778],
+       [-1.33249593],
+       [-1.21538918],
+       [-1.10664719],
+       [-1.10664719],
+       [-1.20702441],
+       [-1.34922546],
+       [-1.47469699],
+       [-1.35759023],
+       [-1.38268454],
+       [-1.29067209],
+       [-1.16520057],
+       [-1.21538918],
+       [-1.29903686],
+       [-1.09828242],
+       [-0.9226223 ],
+       [-0.9226223 ],
+       [-1.02299951],
+       [-1.23211871],
+       [-1.3910493 ],
+       [-1.17356534],
+       [-1.1317415 ],
+       [-1.08991766],
+       [-0.85570415],
+       [-0.98117567],
+       [-0.90589276],
+       [-0.85570415],
+       [-0.68004402],
+       [-0.68004402],
+       [-0.80551554],
+       [-0.98954044],
+       [-1.12337673],
+       [-0.95608137],
+       [-0.91425753],
+       [-0.83897462],
+       [-0.73023263],
+       [-0.83060985],
+       [-0.81388031],
+       [-0.52111343],
+       [-0.42073621],
+       [-0.320359  ],
+       [-0.59639634],
+       [-0.74696217],
+       [-0.90589276],
+       [-0.72186786],
+       [-0.70513833],
+       [-0.70513833],
+       [-0.37054761],
+       [-0.37891237],
+       [-0.42910098],
+       [-0.31199423],
+       [-0.1363341 ],
+       [-0.06941596],
+       [-0.36218284],
+       [-0.57966681],
+       [-0.83897462],
+       [-0.66331449],
+       [-0.63822018],
+       [-0.77205647],
+       [-0.37891237],
+       [-0.44583052],
+       [-0.38727714],
+       [-0.1363341 ],
+       [ 0.18152708],
+       [ 0.10624417],
+       [-0.17815794],
+       [-0.42910098],
+       [-0.64658495],
+       [-0.42910098],
+       [-0.320359  ],
+       [-0.39564191],
+       [-0.1112398 ],
+       [-0.09451026],
+       [-0.08614549],
+       [ 0.29026907],
+       [ 0.7001427 ],
+       [ 0.55794164],
+       [ 0.26517476],
+       [-0.05268642],
+       [-0.36218284],
+       [-0.01922735],
+       [ 0.03096126],
+       [-0.02759212],
+       [ 0.3069986 ],
+       [ 0.27353953],
+       [ 0.31536337],
+       [ 0.78379038],
+       [ 1.11001633],
+       [ 1.04309819],
+       [ 0.62485979],
+       [ 0.21498616],
+       [-0.07778072],
+       [ 0.21498616],
+       [ 0.29026907],
+       [ 0.17316232],
+       [ 0.63322456],
+       [ 0.56630641],
+       [ 0.62485979],
+       [ 1.18529925],
+       [ 1.54498427],
+       [ 1.56171381],
+       [ 1.03473342],
+       [ 0.55794164],
+       [ 0.20662139],
+       [ 0.4659292 ],
+       [ 0.49938827],
+       [ 0.31536337],
+       [ 0.68341317],
+       [ 0.56630641],
+       [ 0.69177793],
+       [ 1.29404123],
+       [ 1.76246824],
+       [ 1.87957499],
+       [ 1.03473342],
+       [ 0.65831886],
+       [ 0.24844523],
+       [ 0.47429396],
+       [ 0.66668363],
+       [ 0.5161178 ],
+       [ 1.05146296],
+       [ 0.96781528],
+       [ 1.16856971],
+       [ 1.60353765],
+       [ 2.23926002],
+       [ 2.33127247],
+       [ 1.52825474],
+       [ 1.05982773],
+       [ 0.68341317],
+       [ 1.04309819],
+       [ 1.14347541],
+       [ 0.92599144],
+       [ 1.16020494],
+       [ 1.5115252 ],
+       [ 1.60353765],
+       [ 2.13051803],
+       [ 2.85825285],
+       [ 2.72441656],
+       [ 1.9046693 ],
+       [ 1.5115252 ],
+       [ 0.91762667],
+       [ 1.26894693]])
+checking stationary after standardization
+transformed_reshape=transformed.reshape(1,-1)[0]
+result = adfuller(transformed_reshape)
+print('ADF Statistic: %f' % result[0])
+print('p-value: %f' % result[1])
+print('Critical Values:')
+for key, value in result[4].items():
+    print('\t%s: %.3f' % (key, value))
+ADF Statistic: 0.815369
+p-value: 0.991880
+Critical Values:
+	10%: -2.579
+	1%: -3.482
+	5%: -2.884
+it shows standardization is not good way to make this series stationary.
+
+​
