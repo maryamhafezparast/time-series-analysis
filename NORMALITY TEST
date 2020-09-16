@@ -1,0 +1,148 @@
+Jupyter Notebooktime series activity1- normality test Last Checkpoint: 06/17/2020 (autosaved)
+Python 3 
+
+Normality test
+In statistics, normality tests are used to determine if a data set is well-modeled by a normal distribution and to compute how likely it is for a random variable underlying the data set to be normally distributed.There are a number of techniques that you can check if your data sample is Gaussian or sufficiently Gaussian-like to use the standard techniques, or sufficiently non-Gaussian to instead use non-parametric statistical methods.
+
+Activity1
+There is a precipitation time series that you can apply normality test on that. 1-histogram test 2-Q-Q plot test 3-shapiro wilktest 4-D’Agostino’s K^2 Test 5-Anderson-Darling Test
+
+from matplotlib import pyplot as plt
+import pandas as pd
+data=pd.read_csv('data.csv')
+data
+P
+0	29.0
+1	52.0
+2	10.0
+3	49.5
+4	78.5
+5	66.5
+6	34.5
+7	87.5
+8	0.0
+9	0.0
+10	0.0
+11	0.0
+12	11.0
+13	0.0
+14	159.5
+15	0.0
+16	81.5
+17	88.0
+18	152.0
+19	42.0
+20	11.0
+21	0.0
+22	35.0
+23	0.0
+24	0.0
+25	141.7
+26	108.5
+27	34.5
+28	115.2
+29	67.0
+...	...
+366	89.5
+367	14.5
+368	0.0
+369	0.0
+370	0.0
+371	0.0
+372	50.0
+373	33.5
+374	167.5
+375	28.0
+376	35.0
+377	46.5
+378	62.5
+379	55.5
+380	6.0
+381	0.0
+382	0.0
+383	2.5
+384	9.5
+385	60.5
+386	115.5
+387	71.0
+388	43.5
+389	15.0
+390	150.5
+391	19.5
+392	0.0
+393	0.0
+394	0.0
+395	0.0
+396 rows × 1 columns
+
+Normality test
+Visual Normality Checks
+1- histogram plot
+A simple and commonly used plot to quickly check the distribution of a sample of data is the histogram.In the histogram, the data is divided into a pre-specified number of groups called bins. The data is then sorted into each bin and the count of the number of observations in each bin is retained. The plot shows the bins across the x-axis maintaining their ordinal relationship, and the count in each bin on the y-axis. A sample of data has a Gaussian distribution of the histogram plot, showing the familiar bell shape. A histogram can be created using the hist() matplotlib function. By default, the number of bins is automatically estimated from the data sample. A complete example demonstrating the histogram plot on the test problem is listed below.
+
+plt.hist(data.values,20)
+plt.show()
+​
+
+Q-Q PLOT
+Another popular plot for checking the distribution of a data sample is the quantile-quantile plot, Q-Q plot, or QQ plot for short.This plot generates its own sample of the idealized distribution that we are comparing with, in this case the Gaussian distribution. The idealized samples are divided into groups (e.g. 5), called quantiles. Each data point in the sample is paired with a similar member from the idealized distribution at the same cumulative distribution. The resulting points are plotted as a scatter plot with the idealized value on the x-axis and the data sample on the y-axis. A perfect match for the distribution will be shown by a line of dots on a 45-degree angle from the bottom left of the plot to the top right. Often a line is drawn on the plot to help make this expectation clear. Deviations by the dots from the line shows a deviation from the expected distribution. We can develop a QQ plot in Python using the qqplot() statsmodels function.
+
+from statsmodels.graphics.gofplots import qqplot
+qqplot(data, line='s')
+pyplot.show()
+
+Shapiro-Wilk Test
+The Shapiro-Wilk test evaluates a data sample and quantifies how likely it is that the data was drawn from a Gaussian distribution, named for Samuel Shapiro and Martin Wilk.In practice, the Shapiro-Wilk test is believed to be a reliable test of normality, although there is some suggestion that the test may be suitable for smaller samples of data, e.g. thousands of observations or fewer.
+
+The shapiro() SciPy function will calculate the Shapiro-Wilk on a given dataset. The function returns both the W-statistic calculated by the test and the p-value.
+
+from scipy.stats import shapiro
+stat, p = shapiro(data)
+print('Statistics=%.3f, p=%.3f' % (stat, p))
+# interpret
+alpha = 0.05
+if p > alpha:
+    print('Sample looks Gaussian (fail to reject H0)')
+else:
+    print('Sample does not look Gaussian (reject H0)')
+Statistics=0.852, p=0.000
+Sample does not look Gaussian (reject H0)
+D’Agostino’s K^2 Test
+The D’Agostino’s K^2 test calculates summary statistics from the data, namely kurtosis and skewness, to determine if the data distribution departs from the normal distribution, named for Ralph D’Agostino.Skew is a quantification of how much a distribution is pushed left or right, a measure of asymmetry in the distribution. Kurtosis quantifies how much of the distribution is in the tail. It is a simple and commonly used statistical test for normality. The D’Agostino’s K^2 test is available via the normaltest() SciPy function and returns the test statistic and the p-value.
+
+from scipy.stats import normaltest
+# normality test
+stat, p = normaltest(data)
+print('Statistics=%.3f, p=%.3f' % (stat, p))
+# interpret
+alpha = 0.05
+if p > alpha:
+    print('Sample looks Gaussian (fail to reject H0)')
+else:
+    print('Sample does not look Gaussian (reject H0)')
+Statistics=63.783, p=0.000
+Sample does not look Gaussian (reject H0)
+Anderson-Darling Test
+Anderson-Darling Test is a statistical test that can be used to evaluate whether a data sample comes from one of among many known data samples, named for Theodore Anderson and Donald Darling. The test is a modified version of a more sophisticated nonparametric goodness-of-fit statistical test called the Kolmogorov-Smirnov test.
+
+A feature of the Anderson-Darling test is that it returns a list of critical values rather than a single p-value. This can provide the basis for a more thorough interpretation of the result.
+
+The anderson() SciPy function implements the Anderson-Darling test. It takes as parameters the data sample and the name of the distribution to test it against. By default, the test will check against the Gaussian distribution (dist=’norm’).
+
+from scipy.stats import anderson
+# normality test
+result1 = anderson(data.values.flatten())
+print('Statistic: %.3f' % result1.statistic)
+# interpret
+alpha = 0.05
+if p > alpha:
+    print('Sample looks Gaussian (fail to reject H0)')
+else:
+    print('Sample does not look Gaussian (reject H0)')
+Statistic: 18.584
+Sample does not look Gaussian (reject H0)
+QUESTIONS
+1- Try all normality test on different blew times series.
+
+Daily minimum temprature Australia. 2- find different timeseries dataset and try normality test on them.
+
