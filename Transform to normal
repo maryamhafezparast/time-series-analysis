@@ -1,0 +1,195 @@
+Jupyter Notebooktime series activity 2-transform to normal Last Checkpoint: 06/18/2020 (autosaved)
+Python 3 
+
+transformation to Normal:
+there are some methods that helps transform data to normal distribution. use the bmi column in diabetes dataset and draw it, then check the normality test and use different method of transformation to normal and see which method is usefull. 1- log transformation 2-square root transformation 3- reciprocal transformation 4-boxcox transformation(positive numbers) 5-Yeo-Johnson transformation
+
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+data=pd.read_csv('diabetes.csv')
+plt.hist(data['bmi'].values,50)
+plt.show()
+​
+​
+
+from scipy.stats import shapiro
+stat, p = shapiro(data.values)
+print('Statistics=%.3f, p=%.3f' % (stat, p))
+# interpret
+alpha = 0.05
+if p > alpha:
+    print('Sample looks Gaussian (fail to reject H0)')
+else:
+    print('Sample does not look Gaussian (reject H0)')
+Statistics=0.692, p=0.000
+Sample does not look Gaussian (reject H0)
+C:\Users\PC\AppData\Local\Enthought\Canopy\edm\envs\User\lib\site-packages\scipy\stats\morestats.py:1310: UserWarning: p-value may not be accurate for N > 5000.
+  warnings.warn("p-value may not be accurate for N > 5000.")
+1. Log Transformation :
+In Log transformation each variable of x will be replaced by log(x) with base 10, base 2, or natural log.
+log_target2 = np.log1p(data2['bmi'].values)
+plt.hist(log_target,100)
+plt.show()
+
+from scipy.stats import shapiro
+stat, p = shapiro(log_target2)
+print('Statistics=%.3f, p=%.3f' % (stat, p))
+# interpret
+alpha = 0.05
+if p > alpha:
+    print('Sample looks Gaussian (fail to reject H0)')
+else:
+    print('Sample does not look Gaussian (reject H0)')
+Statistics=0.482, p=0.000
+Sample does not look Gaussian (reject H0)
+2. Square-Root Transformation :
+the x will replace by the square root(x). It is weaker than the Log Transformation.
+
+sqrt_target = (data['bmi'])**(1/2)
+​
+plt.hist(sqrt_target.values,20)
+plt.show()
+​
+
+from scipy.stats import shapiro
+stat, p = shapiro(sqrt_target)
+print('Statistics=%.3f, p=%.3f' % (stat, p))
+# interpret
+alpha = 0.05
+if p > alpha:
+    print('Sample looks Gaussian (fail to reject H0)')
+else:
+    print('Sample does not look Gaussian (reject H0)')
+Statistics=0.739, p=0.000
+Sample does not look Gaussian (reject H0)
+3. Reciprocal Transformation :
+In this transformation, x will replace by the inverse of x (1/x).This transformation can be only used for non-zero values.so as we have many zero numbers in the time series so can not use this method.
+
+reciprocal_target = 1/(data['bmi'])
+reciprocal_target
+​
+0      0.029762
+1      0.037594
+2      0.042918
+3      0.035587
+4      0.023202
+5      0.039062
+6      0.032258
+7      0.028329
+8      0.032787
+9           inf
+10     0.026596
+11     0.026316
+12     0.036900
+13     0.033223
+14     0.038760
+15     0.033333
+16     0.021834
+17     0.033784
+18     0.023095
+19     0.028902
+20     0.025445
+21     0.028249
+22     0.025126
+23     0.034483
+24     0.027322
+25     0.032154
+26     0.025381
+27     0.043103
+28     0.045045
+29     0.029326
+         ...   
+738    0.027322
+739    0.025316
+740    0.023641
+741    0.032468
+742    0.035088
+743    0.030581
+744    0.024631
+745    0.033333
+746    0.020284
+747    0.021598
+748    0.027473
+749    0.041152
+750    0.032051
+751    0.025641
+752    0.038462
+753    0.023095
+754    0.030864
+755    0.027397
+756    0.031250
+757    0.027548
+758    0.026667
+759    0.028169
+760    0.035211
+761    0.022727
+762    0.044444
+763    0.030395
+764    0.027174
+765    0.038168
+766    0.033223
+767    0.032895
+Name: bmi, Length: 768, dtype: float64
+from scipy.stats import shapiro
+stat, p = shapiro(reciprocal_target)
+print('Statistics=%.3f, p=%.3f' % (stat, p))
+# interpret
+alpha = 0.05
+if p > alpha:
+    print('Sample looks Gaussian (fail to reject H0)')
+else:
+    print('Sample does not look Gaussian (reject H0)')
+Statistics=nan, p=1.000
+Sample looks Gaussian (fail to reject H0)
+the reciprocal method is usefull for transforming bmi series to normal.
+
+4. Box-Cox Transformation:
+All the values of lambda vary from -5 to 5 are considered and the best value for the data is selected. The “Best” value is one that results in the best skewness of the distribution. Log transformation will take place when we have lambda is zero. this method also is usefull for x>0. as there is negative numbers in bmi series so it can not transform by boxcox transformation
+
+from matplotlib import pyplot as plt
+from scipy.stats import boxcox
+bcx_target, lam = boxcox(data['bmi'].values)
+#lam is the best lambda for the distribution
+plt.hist(bcx_target,50)
+plt.show()
+​
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+<ipython-input-82-5f08277cf85f> in <module>()
+      1 from matplotlib import pyplot as plt
+      2 from scipy.stats import boxcox
+----> 3 bcx_target, lam = boxcox(data['bmi'].values)
+      4 #lam is the best lambda for the distribution
+      5 plt.hist(bcx_target,50)
+
+C:\Users\PC\AppData\Local\Enthought\Canopy\edm\envs\User\lib\site-packages\scipy\stats\morestats.py in boxcox(x, lmbda, alpha)
+   1029 
+   1030     if any(x <= 0):
+-> 1031         raise ValueError("Data must be positive.")
+   1032 
+   1033     if lmbda is not None:  # single transformation
+
+ValueError: Data must be positive.
+
+5. Yeo-Johnson transformation
+from scipy import stats
+x_most_normal, lmbda_optimal = stats.yeojohnson(data['bmi'].values)
+xt, lmbda = stats.yeojohnson(data['bmi'].values)
+prob = stats.probplot(xt, dist=stats.norm, plot=ax2)
+ax2.set_title('Probplot after Yeo-Johnson transformation')
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-112-6e130e5e2d0c> in <module>()
+      1 from scipy import stats
+----> 2 x_most_normal, lmbda_optimal = stats.yeojohnson(data['bmi'].values)
+      3 xt, lmbda = stats.yeojohnson(data['bmi'].values)
+      4 prob = stats.probplot(xt, dist=stats.norm, plot=ax2)
+      5 ax2.set_title('Probplot after Yeo-Johnson transformation')
+
+AttributeError: module 'scipy.stats' has no attribute 'yeojohnson'
+
+Question
+use the data of other columns in diabetes dataset and check the normality test and transfer to normal. use other data sets and check the normality and if it needs transfer it to normal.
+
+​
